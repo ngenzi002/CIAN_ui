@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dash.css"> <!-- Link to your CSS file -->
+    <title>Dashboard</title>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html" class="nav-link">Cian</a></li>
+            
+        </ul>
+    </nav>
+    <section id="dashboard">
+        
+        <form class="blog-form" action="#" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Blog Title:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="content">Content:</label>
+                <textarea id="content" name="content" rows="5" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="image">Upload Image:</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+            </div>
+            <button type="submit" class="send-button">Publish</button>
+        </form>
+
+        <h2>Existing Blog Posts</h2>
+        <div class="existing-posts">
+            <!-- Existing posts will be displayed here -->
+        </div>
+    </section>
+
+    <script>
+        let editingIndex = null; // To track which post is being edited
+
+        // Function to display blog posts
+        function displayBlogPosts() {
+            const blogContainer = document.querySelector('.existing-posts');
+            blogContainer.innerHTML = ''; // Clear existing posts
+
+            const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            posts.forEach((post, index) => {
+                const blogPostElement = document.createElement('div');
+                blogPostElement.classList.add('blog-post');
+
+                blogPostElement.innerHTML = `
+                    <img src="${post.image}" alt="${post.title}" class="blog-image" />
+                    <h2 class="blog-title">${post.title}</h2>
+                    <p class="blog-content">${post.content}</p>
+                    <button class="edit-button" onclick="editPost(${index})">Edit</button>
+                    <button class="delete-button" onclick="deletePost(${index})">Delete</button>
+                `;
+
+                blogContainer.appendChild(blogPostElement);
+            });
+        }
+
+        // Function to handle form submission
+        document.querySelector('.blog-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get form values
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const image = document.getElementById('image').files[0];
+
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                const blogPost = {
+                    title: title,
+                    content: content,
+                    image: reader.result // Base64 encoded image
+                };
+
+                const existingPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+
+                if (editingIndex !== null) {
+                    // Update existing post
+                    existingPosts[editingIndex] = blogPost;
+                    editingIndex = null; // Reset editing index
+                } else {
+                    // Add new post
+                    existingPosts.push(blogPost);
+                }
+
+                localStorage.setItem('blogPosts', JSON.stringify(existingPosts)); // Save back to local storage
+                document.querySelector('.blog-form').reset(); // Clear the form
+                displayBlogPosts(); // Refresh the post list
+                alert('Blog post saved successfully!');
+            };
+
+            if (image) {
+                reader.readAsDataURL(image);
+            }
+        });
+
+        // Function to edit a post
+        function editPost(index) {
+            const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            const post = posts[index];
+
+            // Populate the form with the post data
+            document.getElementById('title').value = post.title;
+            document.getElementById('content').value = post.content;
+            document.getElementById('image').value = '';
+                        // Populate the form with the post data
+                        document.getElementById('title').value = post.title;
+            document.getElementById('content').value = post.content;
+            document.getElementById('image').value = ''; // Reset image input
+
+            // Set the editing index
+            editingIndex = index; // Set the index of the post being edited
+        }
+
+        // Function to delete a post
+        function deletePost(index) {
+            const existingPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            existingPosts.splice(index, 1); // Remove the post at the specified index
+            localStorage.setItem('blogPosts', JSON.stringify(existingPosts)); // Save back to local storage
+            displayBlogPosts(); // Refresh the post list
+            alert('Blog post deleted successfully!');
+        }
+
+        // Call the function to display posts on page load
+        window.onload = function() {
+            displayBlogPosts();
+        };
+    </script>
+</body>
+</html>
