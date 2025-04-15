@@ -38,13 +38,12 @@
     </section>
 
     <script>
-        let editingIndex = null; // To track which post is being edited
+        let editingIndex = null; 
 
         // Function to display blog posts
         function displayBlogPosts() {
             const blogContainer = document.querySelector('.existing-posts');
-            blogContainer.innerHTML = ''; // Clear existing posts
-
+            blogContainer.innerHTML = ''; 
             const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
             posts.forEach((post, index) => {
                 const blogPostElement = document.createElement('div');
@@ -64,8 +63,7 @@
 
         // Function to handle form submission
         document.querySelector('.blog-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
+            event.preventDefault();
             // Get form values
             const title = document.getElementById('title').value;
             const content = document.getElementById('content').value;
@@ -76,7 +74,7 @@
                 const blogPost = {
                     title: title,
                     content: content,
-                    image: reader.result // Base64 encoded image
+                    image: reader.result 
                 };
 
                 const existingPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
@@ -84,13 +82,13 @@
                 if (editingIndex !== null) {
                     // Update existing post
                     existingPosts[editingIndex] = blogPost;
-                    editingIndex = null; // Reset editing index
+                    editingIndex = null; 
                 } else {
                     // Add new post
                     existingPosts.push(blogPost);
                 }
 
-                localStorage.setItem('blogPosts', JSON.stringify(existingPosts)); // Save back to local storage
+                localStorage.setItem('blogPosts', JSON.stringify(existingPosts));
                 document.querySelector('.blog-form').reset(); // Clear the form
                 displayBlogPosts(); // Refresh the post list
                 alert('Blog post saved successfully!');
